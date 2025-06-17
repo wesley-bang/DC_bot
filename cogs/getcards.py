@@ -10,7 +10,7 @@ ALLOWED_EXTENSIONS = ".webp"
 class Getcards(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.card_path = "C:\\Users\\user\\Desktop\\DC_bot\\cogs\\cards"
+        self.card_path = "cogs/cards"
         self.active_drawn = {}
         self.option = { 
             "🧬": "最強的基因",
