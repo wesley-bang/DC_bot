@@ -1,0 +1,16 @@
+#TOKEN
+.env
+
+#Other common ignores
+__pycache__/
+*.pyc
+.Python
+venv/
+env/
+.ipynb_checkpoints/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+*.csv
+*.json
