@@ -29,6 +29,12 @@ class Talking(commands.Cog):
             
             if "得卡" in content: return
 
+            if "丟硬幣" in content: 
+                tosscoin_cog = self.bot.get_cog(Tosscoin)
+                if tosscoin_cog:
+                    tosscoin_cog.flip_coin(self, message.channel, 5)
+                else return
+
             else: await message.channel.send("蛤")
             
 async def setup(bot):
