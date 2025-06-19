@@ -33,7 +33,7 @@ class Talking(commands.Cog):
                 tosscoin_cog = self.bot.get_cog(Tosscoin)
                 if tosscoin_cog:
                     tosscoin_cog.flip_coin(self, message.channel, 5)
-                else return
+                else: return
 
             else: await message.channel.send("蛤")
             

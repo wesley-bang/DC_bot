@@ -4,7 +4,7 @@ import asyncio
 import random
 
 intents = discord.Intents.all()
-class TossCoin(commands.Cog):
+class Tosscoin(commands.Cog):
     
     def __init__(self, bot: commands.Bot):
         self.bot = bot
