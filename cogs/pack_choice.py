@@ -21,6 +21,7 @@ class PackChoice(commands.Cog):
     async def start_pack_selection(self, message: discord.Message, user_id: int):
         
         self.waiting_selection[message.id] = user_id
+        content = message.content
 
         tasks = []
         for emoji in self.option.keys():
