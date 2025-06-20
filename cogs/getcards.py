@@ -1,7 +1,6 @@
 import discord
 import os
 import random
-import asyncio
 from discord.ext import commands
 
 intents = discord.Intents.all()

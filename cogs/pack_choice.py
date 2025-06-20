@@ -21,7 +21,6 @@ class PackChoice(commands.Cog):
     async def start_pack_selection(self, message: discord.Message, user_id: int):
         
         self.waiting_selection[message.id] = user_id
-        content = message.content
 
         tasks = []
         for emoji in self.option.keys():
@@ -77,10 +76,6 @@ class PackChoice(commands.Cog):
         except Exception as e:
             print(f"等待用戶{user_obj.name}時發生未知錯誤: {e}")
             await message.channel.send(f"{user_id}的得卡挑戰發生錯誤")
-        
-        #finally:
-        #    if message.id in self.waiting_selection:
-        #        del self.waiting_selection[message.id]
 
 
         challenge_cog = self.bot.get_cog('Challenge')

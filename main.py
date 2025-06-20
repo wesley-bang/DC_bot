@@ -3,12 +3,14 @@ from discord.ext import commands
 import os # 用於讀取資料夾中的檔案
 from dotenv import load_dotenv
 
+from cogs.talking import GEMINI_API_KEY
+
 # intents是要求機器人的權限
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix = "$", intents = intents)
 load_dotenv()
-TOKEN = os.getenv("DC_BOT_TOKEN")
-
+BOT_TOKEN = os.getenv("DC_BOT_TOKEN")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # 當機器人完成啟動
 @bot.event
@@ -24,6 +26,8 @@ async def on_ready():
                 print(f"成功載入 {filename}")
             except Exception as e:
                 print(f"無法載入 {filename}: {e}")
+    slash = await bot.tree.sync()
+    print(f"已同步 {len(slash)} 個指令到 Discord")
     print("----- Cogs 載入完成 -----")
 
 
@@ -57,4 +61,4 @@ async def reload(ctx, extension):
 
 # 運行機器人
 # 為了安全，TOKEN 建議放在環境變數或 config.py 中，不要直接寫在這裡
-bot.run(TOKEN)
+bot.run(BOT_TOKEN)
