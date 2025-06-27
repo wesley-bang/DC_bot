@@ -3,7 +3,6 @@ from discord.ext import commands
 import os # 用於讀取資料夾中的檔案
 from dotenv import load_dotenv
 
-from cogs.talking import GEMINI_API_KEY
 
 # intents是要求機器人的權限
 intents = discord.Intents.all()
