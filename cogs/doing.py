@@ -16,7 +16,7 @@ class Doing(commands.Cog):
         ]
         self.taiwan_tz = pytz.timezone('Asia/Taipei')
         
-    every_hour = [datetime.time(hour = i, minute = 0, second = 0, tzinfo = pytz.timezone('Asia/Taipei')) 
+    every_hour = [datetime.time(hour = i, minute = 0, second = 0, tzinfo = datetime.timezone(datetime.timedelta(hours = 8))) 
                     for i in range(24)]
 
     @tasks.loop(time = every_hour)
