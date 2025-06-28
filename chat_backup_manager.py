@@ -74,4 +74,25 @@ def load_chat_history(backup_directory: str = BACKUP_DIRECTORY) -> dict:
             continue
 
     print(f"聊天紀錄載入完成。共載入 {len(loaded_history)} 位使用者的紀錄。")
-    return 
+    return loaded_history
+
+if __name__ == '__main__':
+    # 創建一些假數據用於測試
+    test_history = {
+        12345: [
+            {"sender": "user", "content": "你好", "timestamp": "2023-01-01T10:00:00"},
+            {"sender": "bot", "content": "您好，訓練家！", "timestamp": "2023-01-01T10:00:05"}
+        ],
+        67890: [
+            {"sender": "user", "content": "請問喬伊小姐在嗎？", "timestamp": "2023-01-01T10:05:00"}
+        ]
+    }
+    
+    print("--- 執行備份測試 ---")
+    save_chat_history(test_history, "test_backups")
+
+    print("\n--- 執行載入測試 ---")
+    loaded_data = load_chat_history("test_backups")
+    print("\n載入的數據:")
+    for user_id, history in loaded_data.items():
+        print(f"用戶 {user_id}: {history}")
