@@ -58,7 +58,7 @@ class Talking(commands.Cog):
             self.timed_backup_task.start()
             print("定時備份任務已啟動。")
 
-    @tasks.loop(minute = 1)
+    @tasks.loop(minute = 30)
     async def timed_backup_task(self):
         taiwan_tz = pytz.timezone('Asia/Taipei')
         print(f"正在備份聊天記錄...，時間: {datetime.datetime.now(taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}")
