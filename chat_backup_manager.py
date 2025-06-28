@@ -7,13 +7,16 @@ BACKUP_DIRECTORY = "chat_backups"
 
 def delete_old_backups(user_id: int, backup_directory: str = BACKUP_DIRECTORY):
     
-    if not os.path.exists(backup_directory): return
 
     all_backups = []
+    abs_path = os.path.abspath(backup_directory)
+    print(f"絕對路徑: {abs_path}")
+    
+    if not os.path.exists(abs_path): return
 
     for filename in os.listdir(backup_directory):
         if filename.startswith(f"chat_backup_{user_id}_") and filename.endswith(".json"):
-            filepath = os.path.join(backup_directory, filename)
+            filepath = os.path.join(abs_path, filename)
             try:
                 parts = filename.split('_')
                 if len(parts) >= 5:
@@ -30,10 +33,13 @@ def delete_old_backups(user_id: int, backup_directory: str = BACKUP_DIRECTORY):
                 print(f"處理用戶 {user_id} 的備份檔案 '{filename}' 時發生錯誤: {e}")
                 continue
                 
-    if not all_backups: return
+    if not all_backups: 
+        print(f"用戶 {user_id} 沒有可刪除的舊備份")
+        return
 
     all_backups.sort(key = lambda x: x[0])
     files_to_delete = [filepath for timestamp, filepath in all_backups[:-1]]
+    print(f"DEBUG(delete): 用戶 {user_id} 準備刪除 {len(files_to_delete)} 個檔案。")
 
     for old_file_path in files_to_delete:
         try:
@@ -51,9 +57,10 @@ def save_chat_history(message_history_data: dict, backup_directory: str = BACKUP
     if not message_history_data:
         print("無聊天紀錄可備份。")
         return
-    
-    if not os.path.exists(backup_directory):
-        os.makedirs(backup_directory)
+
+    abs_path = os.path.abspath(backup_directory)
+    if not os.path.exists(abs_path):
+        os.makedirs(abs_path)
 
     for user_id, history in message_history_data.items():
         if not history:
@@ -61,7 +68,7 @@ def save_chat_history(message_history_data: dict, backup_directory: str = BACKUP
            continue
 
         try:
-            delete_old_backups(user_id, backup_directory)
+            delete_old_backups(user_id, abs_path)
 
             taiwan_tz = pytz.timezone('Asia/Taipei')
             timestamp = datetime.datetime.now(taiwan_tz).strftime("%Y%m%d_%H%M%S")
@@ -80,23 +87,25 @@ def save_chat_history(message_history_data: dict, backup_directory: str = BACKUP
 def load_chat_history(backup_directory: str = BACKUP_DIRECTORY) -> dict:
     
     loaded_history = {}
-    if not os.path.exists(backup_directory):
-        print(f"備份目錄{backup_directory}不存在，無法載入聊天紀錄。")
+    abs_path = os.path.abspath(backup_directory)
+    
+    if not os.path.exists(abs_path):
+        print(f"備份目錄{abs_path}不存在，無法載入聊天紀錄。")
         return loaded_history
     
-    print(f"正在從{backup_directory}載入聊天紀錄...")
+    print(f"正在從{abs_path}載入聊天紀錄...")
 
     lastest_user_backups = {} #{user_id: (timestamp_obj, file_path)}
 
-    for filename in os.listdir(backup_directory):
+    for filename in os.listdir(abs_path):
         if filename.startswith('chat_backup_') and filename.endswith('.json'):
+            filepath = os.path.join(abs_path, filename)
             try:
                 parts = filename.split('_')
                 if len(parts) >= 5:
                     user_id = int(parts[2])
                     timestamp_str = f"{parts[3]}_{parts[4].split('.')[0]}" #YYYYMMDD_HHMMSS.json
                     timestamp = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
-                    filepath = os.path.join(backup_directory, filename)
 
                     if user_id not in lastest_user_backups or timestamp > lastest_user_backups[user_id][0]:
                         lastest_user_backups[user_id] = (timestamp, filepath)
