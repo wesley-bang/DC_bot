@@ -118,4 +118,3 @@ def load_chat_history(backup_directory: str = BACKUP_DIRECTORY) -> dict:
 
     print(f"聊天紀錄載入完成。共載入 {len(loaded_history)} 位使用者的紀錄。\n\n")
     return loaded_history
-
