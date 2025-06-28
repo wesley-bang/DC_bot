@@ -42,6 +42,14 @@ async def on_ready():
         initial_activity = random.choice(doing_cog.activities)
         await bot.change_presence(activity = discord.Activity(type = ActivityType.playing, name = f"{initial_activity}"), status = discord.Status.online)
         print(f"機器人初始狀態設定為：正在玩{initial_activity}，時間: {time_now.strftime('%H:%M:%S')}")
+        
+        if not doing_cog.doing_task.is_running():
+            doing_cog.doing_task.start()
+            print("在主 on_ready 中成功啟動 doing_task 任務。")
+        else:
+            print("doing_task 任務已經在運行中。")
+    else:
+        print("未找到 Doing Cog，無法設定初始狀態或啟動任務。")
 
     
 

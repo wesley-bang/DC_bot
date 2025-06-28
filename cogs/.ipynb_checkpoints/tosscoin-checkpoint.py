@@ -4,7 +4,6 @@ from discord import User, app_commands
 import asyncio
 import random
 
-intents = discord.Intents.all()
 class Tosscoin(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
