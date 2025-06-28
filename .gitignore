@@ -1,16 +1,7 @@
-#TOKEN
+# Python
+__pycache__/
 .env
 
-#Other common ignores
-__pycache__/
-*.pyc
-.Python
-venv/
-env/
-.ipynb_checkpoints/
-.vscode/
-.DS_Store
-Thumbs.db
-*.log
-*.csv
-*.json
+# IDE specific
+.vscode/ # 如果你不想分享VScode的配置
+.idea/

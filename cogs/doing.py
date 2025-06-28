@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 56e6e8c3efde4722659eb16880b31f2a963aca69
 import discord
 from discord.ext import tasks, commands
 import datetime
@@ -46,6 +49,7 @@ class Doing(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Doing(bot))
+<<<<<<< HEAD
 =======
 import discord
 from discord.ext import tasks, commands
@@ -93,4 +97,6 @@ class Doing(commands.Cog):
 async def setup(bot):
     await bot.add_cog(Doing(bot))
 >>>>>>> 517f825841dcac1814d7207a92a1a1032615fc75
+=======
+>>>>>>> 56e6e8c3efde4722659eb16880b31f2a963aca69
     print("Doing Cog 已成功添加到機器人。")
