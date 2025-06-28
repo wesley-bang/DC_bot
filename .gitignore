@@ -5,3 +5,4 @@ __pycache__/
 # IDE specific
 .vscode/ # 如果你不想分享VScode的配置
 .idea/
+chat_backups/

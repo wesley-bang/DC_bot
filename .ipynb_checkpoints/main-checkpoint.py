@@ -3,6 +3,7 @@ from discord.ext import commands
 import os # 用於讀取資料夾中的檔案
 from dotenv import load_dotenv
 from discord import Activity, ActivityType
+import chat_backup_manager
 
 
 # intents是要求機器人的權限
@@ -41,15 +42,29 @@ async def on_ready():
         
         initial_activity = random.choice(doing_cog.activities)
         await bot.change_presence(activity = discord.Activity(type = ActivityType.playing, name = f"{initial_activity}"), status = discord.Status.online)
-        print(f"機器人初始狀態設定為：正在玩{initial_activity}，時間: {time_now.strftime('%H:%M:%S')}")
+        print(f"機器人初始狀態設定為：正在玩{initial_activity}，時間: {time_now.strftime('%H:%M:%S')}\n\n")
         
         if not doing_cog.doing_task.is_running():
             doing_cog.doing_task.start()
-            print("在主 on_ready 中成功啟動 doing_task 任務。")
         else:
             print("doing_task 任務已經在運行中。")
     else:
         print("未找到 Doing Cog，無法設定初始狀態或啟動任務。")
+
+    
+    talking_cog = bot.get_cog("Talking")
+    if talking_cog:
+        print("正在為 Talking Cog 載入聊天記錄並啟動定時備份任務...")
+        talking_cog.message_history = chat_backup_manager.load_chat_history()
+        print("已載入所有使用者的對話歷史。\n\n")
+
+        # 啟動定時備份任務
+        if not talking_cog.timed_backup_task.is_running():
+            talking_cog.timed_backup_task.start()
+        else:
+            print("聊天記錄定時備份任務已在運行中。")
+    else:
+        print("未找到 Talking Cog，無法載入歷史記錄或啟動備份任務。")
 
     
 
