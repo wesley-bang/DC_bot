@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import asyncio
 
 intents = discord.Intents.all()
 class Challenge(commands.Cog):

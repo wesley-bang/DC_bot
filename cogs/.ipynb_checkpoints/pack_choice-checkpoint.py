@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 import asyncio
 
-
+intents = discord.Intents.all()
 class PackChoice(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -76,6 +76,10 @@ class PackChoice(commands.Cog):
         except Exception as e:
             print(f"等待用戶{user_obj.name}時發生未知錯誤: {e}")
             await message.channel.send(f"{user_id}的得卡挑戰發生錯誤")
+        
+        #finally:
+        #    if message.id in self.waiting_selection:
+        #        del self.waiting_selection[message.id]
 
 
         challenge_cog = self.bot.get_cog('Challenge')
