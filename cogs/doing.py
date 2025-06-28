@@ -36,7 +36,7 @@ class Doing(commands.Cog):
 
     @commands.Cog.listener() 
     async def on_ready(self):
-        print("Doing Cog 的 on_ready 事件被觸發。")
+        print("\nDoing Cog 的 on_ready 事件被觸發。\n")
         #if not self.doing_task.is_running():
         #    self.doing_task.start()
 
