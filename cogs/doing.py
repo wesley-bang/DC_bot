@@ -11,15 +11,13 @@ class Doing(commands.Cog):
         self.bot = bot
         self.activities = [
             "寶可夢劍/盾", "寶可夢日/月", "弄訓練員感情", "寶可夢綠寶石",
-            "寶可夢紅寶石", "PTCG", "弄奶頭", "弄陰蒂", "寶可夢 朱/紫",
+            "寶可夢紅寶石", "PTCG", "自己的奶頭", "自己的陰蒂", "寶可夢 朱/紫",
             "寶可夢 鑽石/珍珠", "Pokemon GO", "寶可夢藍寶石"
         ]
         self.taiwan_tz = pytz.timezone('Asia/Taipei')
         
     every_hour = [datetime.time(hour = i, minute = 0, second = 0, tzinfo = pytz.timezone('Asia/Taipei')) 
                     for i in range(24)]
-
-
 
     @tasks.loop(time = every_hour)
     async def doing_task(self): 
@@ -39,8 +37,8 @@ class Doing(commands.Cog):
     @commands.Cog.listener() 
     async def on_ready(self):
         print("Doing Cog 的 on_ready 事件被觸發。")
-        if not self.doing_task.is_running():
-            self.doing_task.start()
+        #if not self.doing_task.is_running():
+        #    self.doing_task.start()
 
 
 async def setup(bot):
