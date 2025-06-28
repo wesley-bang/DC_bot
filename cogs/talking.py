@@ -1,11 +1,14 @@
-from urllib import response
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 from discord import app_commands
 import os
 import google.generativeai as genai
 from bs4 import BeautifulSoup
 from google.generativeai.types import BlockedPromptException
+import datetime
+import pytz
+
+import chat_backup_manager
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key = GEMINI_API_KEY)
@@ -13,7 +16,7 @@ model = genai.GenerativeModel('models/gemini-2.0-flash')
 
 GENERATION_CONFIG = {
     "temperature": 1.6,
-    "max_output_tokens": 170,
+    "max_output_tokens": 200,
     "top_p": 0.95,
     "top_k": 512,
 }
@@ -46,6 +49,35 @@ class Talking(commands.Cog):
             )
 
     @commands.Cog.listener()
+    async def on_ready(self):
+        print(f"Talking Cog 已成功載入。")
+        self.message_history = chat_backup_manager.load_chat_history()
+        print("以載入所有用戶的聊天記錄。")
+
+        if not self.timed_backup_task.is_running():
+            self.timed_backup_task.start()
+            print("定時備份任務已啟動。")
+
+    @tasks.loop(minute = 1)
+    async def timed_backup_task(self):
+        taiwan_tz = pytz.timezone('Asia/Taipei')
+        print(f"正在備份聊天記錄...，時間: {datetime.datetime.now(taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}")
+        
+        chat_backup_manager.save_chat_history(self.message_history)
+        print(f"定時聊天記錄已成功備份。時間: {datetime.datetime.now(taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}")
+
+    @timed_backup_task.error
+    async def timed_backup_task_error(self, error):
+        print(f"定時備份任務發生錯誤: {error}")
+
+    def cog_unload(self):
+        self.timed_backup_task.cancel()
+        print("Talking Cog 已卸載，定時備份任務已取消。")
+        print("正在執行最後一次備份...")
+        chat_backup_manager.save_chat_history(self.message_history)
+        print("最後一次備份已完成。")
+
+    @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author == self.bot.user or message.mention_everyone: return
 
@@ -66,13 +98,13 @@ class Talking(commands.Cog):
             else:
                 async with message.channel.typing():
                     user_id = message.author.id
-                    self.update_message_history(user_id, content)
+                    self.update_message_history(user_id, content, sender = "user")
                     response_content = await self.generate_response(self.get_message_history(user_id))
                     response_text = f"```\n{response_content}\n```"
     
                     if response_text:
                         await message.reply(response_text)
-                        self.update_message_history(user_id, response_content)
+                        self.update_message_history(user_id, response_content, sender = "bot")
 
 
     async def generate_response(self, content: str):
@@ -97,17 +129,19 @@ class Talking(commands.Cog):
             return "抱歉，發生了一些錯誤。請稍後再試。"
 
 
-    def update_message_history(self, user_id, message):
+    def update_message_history(self, user_id, message, sender):
         user_obj = self.bot.get_user(user_id)
         
         if user_id not in self.message_history:
             self.message_history[user_id] = []
             print(f"用戶 {user_obj.name} 的訊息歷史已初始化。")
 
-        if isinstance(message, discord.Message):
-            self.message_history[user_id].append(message.content)
-        else:
-            self.message_history[user_id].append(message)
+        taiwan_tz = pytz.timezone('Asia/Taipei')
+        self.message_history[user_id].append({
+            "sender": sender,
+            "content": message,
+            "timestamp": datetime.datetime.now(taiwan_tz).isoformat()
+        })
 
         if len(self.message_history[user_id]) >= MAX_HISTORY_LENGTH:
             self.message_history[user_id].pop(0)
@@ -118,7 +152,7 @@ class Talking(commands.Cog):
             return '\n\n'.join(self.message_history[user_id])
 
         else:
-            return "No messages found for this user."
+            return f"你與使用者初次見面，{self.role_prompt}"
 
     @app_commands.command(name = "清除機器人記憶", description = "清除與機器人的對話歷史")
     async def clear_history(self, interaction: discord.Interaction):
