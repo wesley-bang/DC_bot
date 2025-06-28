@@ -1,6 +1,6 @@
 # Python
 __pycache__/
-env/
+.env
 
 # IDE specific
 .vscode/ # 如果你不想分享VScode的配置
