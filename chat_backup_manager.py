@@ -9,9 +9,7 @@ def delete_old_backups(user_id: int, backup_directory: str = BACKUP_DIRECTORY):
     
     if not os.path.exists(backup_directory): return
 
-    files_to_delete = []
-    latest_timestamp = None
-    latest_filepath = None
+    all_backups = []
 
     for filename in os.listdir(backup_directory):
         if filename.startswith(f"chat_backup_{user_id}_") and filename.endswith(".json"):
@@ -21,15 +19,7 @@ def delete_old_backups(user_id: int, backup_directory: str = BACKUP_DIRECTORY):
                 if len(parts) >= 5:
                     timestamp_str = "_".join(parts[3:]).replace(".json", "")
                     current_timestamp = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
-
-                    if latest_timestamp is None or current_timestamp > latest_timestamp:
-                        if latest_filepath:
-                            files_to_delete.append(latest_filepath)
-                            
-                        latest_timestamp = current_timestamp
-                        latest_filepath = filepath
-
-                    else: files_to_delete.append(filepath)
+                    all_backups.append((backup_directory, filename))
 
                 else: print(f"跳過用戶 {user_id} 不符合命名規則的檔案: {filename}")
             
@@ -39,6 +29,11 @@ def delete_old_backups(user_id: int, backup_directory: str = BACKUP_DIRECTORY):
             except Exception as e:
                 print(f"處理用戶 {user_id} 的備份檔案 '{filename}' 時發生錯誤: {e}")
                 continue
+                
+    if not all_backups: return
+
+    all_backups.sort(key = lambda x: x[0])
+    files_to_delete = [filepath for timestamp, filepath in all_backups[:-1]]
 
     for old_file_path in files_to_delete:
         try:
@@ -68,7 +63,8 @@ def save_chat_history(message_history_data: dict, backup_directory: str = BACKUP
         try:
             delete_old_backups(user_id, backup_directory)
 
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            taiwan_tz = pytz.timezone('Asia/Taipei')
+            timestamp = datetime.datetime.now(taiwan_tz).strftime("%Y%m%d_%H%M%S")
             backup_file = os.path.join(backup_directory, f"chat_backup_{user_id}_{timestamp}.json")
             
             with open(backup_file, 'w', encoding = 'utf-8') as f:
