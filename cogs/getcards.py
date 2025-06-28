@@ -3,7 +3,6 @@ import os
 import random
 from discord.ext import commands
 
-intents = discord.Intents.all()
 ALLOWED_EXTENSIONS = ".webp"
 
 class Getcards(commands.Cog):

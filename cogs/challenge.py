@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 
-intents = discord.Intents.all()
 class Challenge(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
