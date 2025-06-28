@@ -53,10 +53,11 @@ class Talking(commands.Cog):
 
     @tasks.loop(minutes = 1)
     async def timed_backup_task(self):
-        print(f"正在備份聊天記錄...，時間(UTF+0): {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        taiwan_tz = pytz.timezone('Asia/Taipei')
+        print(f"正在備份聊天記錄...，時間(UTF+8): {datetime.datetime.now(taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}")
         
         chat_backup_manager.save_chat_history(self.message_history)
-        print(f"定時聊天記錄已成功備份。時間(UTF+0): {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        print(f"定時聊天記錄已成功備份。時間(UTF+8): {datetime.datetime.now(taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     @timed_backup_task.error
     async def timed_backup_task_error(self, error):
@@ -132,7 +133,7 @@ class Talking(commands.Cog):
         self.message_history[user_id].append({
             "sender": sender,
             "content": message_content,
-            "timestamp": datetime.datetime.now().isoformat()
+            "timestamp": datetime.datetime.now(taiwan_tz).isoformat("#", "seconds")
         })
 
         if len(self.message_history[user_id]) >= MAX_HISTORY_LENGTH:
