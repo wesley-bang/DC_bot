@@ -120,6 +120,8 @@ class Talking(commands.Cog):
         else:
             return "No messages found for this user."
 
+    
+
     @app_commands.command(name = "清除機器人記憶", description = "清除與機器人的對話歷史")
     async def clear_history(self, interaction: discord.Interaction):
         user_id = interaction.user.id

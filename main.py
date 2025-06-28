@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os # 用於讀取資料夾中的檔案
 from dotenv import load_dotenv
+from discord import Activity, ActivityType
 
 
 # intents是要求機器人的權限
@@ -28,6 +29,21 @@ async def on_ready():
     slash = await bot.tree.sync()
     print(f"已同步 {len(slash)} 個指令到 Discord")
     print("----- Cogs 載入完成 -----")
+
+    doing_cog = bot.get_cog("Doing")
+    if doing_cog: 
+        import random
+        import datetime
+        import pytz
+
+        taiwan_tz = pytz.timezone('Asia/Taipei')
+        time_now = datetime.datetime.now(taiwan_tz)
+        
+        initial_activity = random.choice(doing_cog.activities)
+        await bot.change_presence(activity = discord.Activity(type = ActivityType.playing, name = f"{initial_activity}"), status = discord.Status.online)
+        print(f"機器人初始狀態設定為：正在玩{initial_activity}，時間: {time_now.strftime('%H:%M:%S')}")
+
+    
 
 
 # 載入 Cog 的指令 (可選，但建議有，方便開發時測試)
