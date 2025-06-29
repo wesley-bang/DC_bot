@@ -2,6 +2,7 @@ import json
 import os
 import datetime
 import pytz
+from typing import Optional
 
 BACKUP_DIRECTORY = "chat_backups"
 
@@ -114,7 +115,7 @@ def load_chat_history(backup_directory: str = BACKUP_DIRECTORY) -> dict:
     return loaded_history
 
 
-def get_latest_timestamp(user_id: int, backup_directory: str) -> datetime.datetime or None:
+def get_latest_timestamp(user_id: int, backup_directory: str) -> Optional[datetime.datetime]:
 
     print(f"正在獲取用戶 {user_id} 的最新備份時間")
     abs_path = os.path.abspath(backup_directory)
