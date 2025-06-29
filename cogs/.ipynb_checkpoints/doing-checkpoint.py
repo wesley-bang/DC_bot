@@ -10,14 +10,13 @@ class Doing(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.activities = [
-            "寶可夢劍/盾", "寶可夢日/月", "弄訓練員感情", "寶可夢綠寶石",
+            "寶可夢劍/盾", "寶可夢日/月", "訓練員的感情", "寶可夢綠寶石",
             "寶可夢紅寶石", "PTCG", "自己的奶頭", "自己的陰蒂", "寶可夢 朱/紫",
             "寶可夢 鑽石/珍珠", "Pokemon GO", "寶可夢藍寶石"
         ]
         self.taiwan_tz = pytz.timezone('Asia/Taipei')
         
-    every_hour = [datetime.time(hour = i, minute = 0, second = 0, tzinfo = datetime.timezone(datetime.timedelta(hours = 8))) 
-                    for i in range(24)]
+    every_hour = [datetime.time(hour = i, minute = 0, second = 0, tzinfo = datetime.timezone(datetime.timedelta(hours = 8))) for i in range(24)]
 
     @tasks.loop(time = every_hour)
     async def doing_task(self): 

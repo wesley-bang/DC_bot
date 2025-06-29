@@ -8,6 +8,7 @@ from google.generativeai.types import BlockedPromptException
 import datetime
 import pytz
 import json
+import asyncio
 
 import chat_backup_manager
 
@@ -28,26 +29,49 @@ class Talking(commands.Cog):
         #self.special_bot_id = 1382939229969190943
         #self.special_bot_name = "嘎嘎嘎"
         self.role_prompt = os.getenv("ROLE_PROMPT_BASE")
+        self.taiwan_tz = pytz.timezone('Asia/taipei')
+        self._backup_task = None
 
     @commands.Cog.listener()
     async def on_ready(self):
         print("\nTalking Cog 已成功載入。\n")
 
-
-    @tasks.loop(minutes = [0, 15, 30, 45])
     async def timed_backup_task(self):
-        taiwan_tz = pytz.timezone('Asia/Taipei')
-        print(f"正在備份聊天記錄...，時間(UTF+8): {datetime.datetime.now(taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"正在備份聊天記錄...，時間(UTF+8): {datetime.datetime.now(self.taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}")
         
         chat_backup_manager.save_chat_history(self.message_history)
-        print(f"定時聊天記錄已成功備份。時間(UTF+8): {datetime.datetime.now(taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}\n")
+        print(f"定時聊天記錄已成功備份。時間(UTF+8): {datetime.datetime.now(self.taiwan_tz).strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-    @timed_backup_task.error
-    async def timed_backup_task_error(self, error):
-        print(f"定時備份任務發生錯誤: {error}")
+    async def start_backup_task(self):
+        while True:
+            now = datetime.datetime.now(self.taiwan_tz)
+            next_minute = (now.minute//15 + 1)*15
+            if next_minute == 60:
+                next_minute = 0
+                next_hour = (now.hour + 1)%24
+            else:
+                next_hour = now.hour
 
+            next_run_time = now.replace(
+                hour = next_hour,
+                minute = next_minute,
+                second = 0,
+                microsecond = 0
+            )
+        
+            if next_run_time <= now:
+                next_run_time += datetime.timedelta(minutes = 15)
+
+
+            wait_seconds = (next_run_time - now).total_seconds()
+            print(f"下一次備份將在 {next_run_time.strftime('%Y-%m-%d %H:%M:%S')} 執行。")
+            await asyncio.sleep(wait_seconds)
+            await self.timed_backup_task()
+
+        
     def cog_unload(self):
-        self.timed_backup_task.cancel()
+        if self._backup_task:
+            self._backup_task.cancel()
         print("\nTalking Cog 已卸載，定時備份任務已取消。")
         print("正在執行最後一次備份...")
         chat_backup_manager.save_chat_history(self.message_history)
@@ -112,11 +136,10 @@ class Talking(commands.Cog):
             self.message_history[user_id] = []
             print(f"用戶 {user_obj.name} 的訊息歷史已初始化。")
 
-        taiwan_tz = pytz.timezone('Asia/Taipei')
         self.message_history[user_id].append({
             "sender": sender,
             "content": message_content,
-            "timestamp": datetime.datetime.now(taiwan_tz).isoformat("#", "seconds")
+            "timestamp": datetime.datetime.now(self.taiwan_tz).isoformat("#", "seconds")
         })
 
         if len(self.message_history[user_id]) >= MAX_HISTORY_LENGTH:
@@ -130,7 +153,7 @@ class Talking(commands.Cog):
         else:
             return f"你與使用者初次見面，{self.role_prompt}"
 
-    @app_commands.command(name = "清除機器人記憶", description = "清除與機器人的對話歷史")
+    @app_commands.command(name = "清除機器人記憶", description = "喬伊小姐失憶了")
     async def clear_history(self, interaction: discord.Interaction):
         user_id = interaction.user.id
         

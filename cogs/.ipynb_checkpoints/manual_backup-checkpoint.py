@@ -21,7 +21,7 @@ class ManualBackup(commands.Cog):
                 return
 
             chat_backup_manager.save_chat_history(talking_cog.message_history)
-            await interaction.followup.send("備份成功！")
+            await interaction.followup.send(f"備份成功！共{len(talking_cog.message_history.get(interaction.user.id))}則訊息被記錄！")
             print(f"用戶 {interaction.user.name} 手動備份成功")
 
         except Exception as e:
@@ -50,7 +50,7 @@ class ManualBackup(commands.Cog):
         if latest_backup_time:
             embed.add_field(
                 name = "上次備份時間 🕒",
-                value = "```\n{latest_backup_time.strftime('%Y-%m-%d %H:%M:%S')}\n```",
+                value = f"```\n{latest_backup_time.strftime('%Y-%m-%d %H:%M:%S')}\n```",
                 inline = False
             )
         else:

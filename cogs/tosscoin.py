@@ -12,10 +12,17 @@ class Tosscoin(commands.Cog):
     @app_commands.describe(flip = "丟硬幣次數")
     async def flip_coin(self, interaction: discord.Interaction, flip: int):
         _user = interaction.user
+            
         await interaction.response.send_message(f"擲硬幣{flip}次！")
+        
+        if flip > 30:
+            await interaction.channel.send(f"{_user.mention}太多次了啦，最多30次好嗎")
+            print(f"{_user.name}呼叫過多次擲硬幣，已拒絕請求")
+            return
 
         try:
             print(f"用戶 {_user.name} 在頻道 {interaction.channel} 擲硬幣 {flip} 次")
+                
             message = await interaction.channel.send(f"{_user.mention}擲硬幣中...")
             new_content = message.content + "\n"
             counter = 0

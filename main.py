@@ -59,8 +59,9 @@ async def on_ready():
         print("已載入所有使用者的對話歷史。\n")
 
         # 啟動定時備份任務
-        if not talking_cog.timed_backup_task.is_running():
-            talking_cog.timed_backup_task.start()
+        if not talking_cog._backup_task or talking_cog._backup_task.done():
+            talking_cog._backup_task = bot.loop.create_task(talking_cog.start_backup_task())
+            print("定時備份啟動")
         else:
             print("聊天記錄定時備份任務已在運行中。")
     else:
