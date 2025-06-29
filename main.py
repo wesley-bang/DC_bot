@@ -56,7 +56,7 @@ async def on_ready():
     if talking_cog:
         print("正在為 Talking Cog 載入聊天記錄並啟動定時備份任務...")
         talking_cog.message_history = chat_backup_manager.load_chat_history()
-        print("已載入所有使用者的對話歷史。\n\n")
+        print("已載入所有使用者的對話歷史。\n")
 
         # 啟動定時備份任務
         if not talking_cog.timed_backup_task.is_running():

@@ -10,38 +10,24 @@ def delete_old_backups(user_id: int, backup_directory: str = BACKUP_DIRECTORY):
 
     all_backups = []
     abs_path = os.path.abspath(backup_directory)
-    print(f"絕對路徑: {abs_path}")
+    print(f"絕對路徑: {abs_path}\n")
     
     if not os.path.exists(abs_path): return
 
-    for filename in os.listdir(backup_directory):
+    for filename in os.listdir(abs_path):
         if filename.startswith(f"chat_backup_{user_id}_") and filename.endswith(".json"):
             filepath = os.path.join(abs_path, filename)
-            try:
-                parts = filename.split('_')
-                if len(parts) >= 5:
-                    timestamp_str = "_".join(parts[3:]).replace(".json", "")
-                    current_timestamp = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
-                    all_backups.append((backup_directory, filename))
+            all_backups.append(filepath)
 
-                else: print(f"跳過用戶 {user_id} 不符合命名規則的檔案: {filename}")
+        else: continue
             
-            except ValueError:
-                print(f"解析用戶 {user_id} 的備份檔案名 '{filename}' 中的時間戳格式錯誤，跳過此檔案。")
-
-            except Exception as e:
-                print(f"處理用戶 {user_id} 的備份檔案 '{filename}' 時發生錯誤: {e}")
-                continue
                 
     if not all_backups: 
         print(f"用戶 {user_id} 沒有可刪除的舊備份")
         return
 
-    all_backups.sort(key = lambda x: x[0])
-    files_to_delete = [filepath for timestamp, filepath in all_backups[:-1]]
-    print(f"DEBUG(delete): 用戶 {user_id} 準備刪除 {len(files_to_delete)} 個檔案。")
 
-    for old_file_path in files_to_delete:
+    for old_file_path in all_backups:
         try:
             os.remove(old_file_path)
             print(f"  - 已刪除舊備份檔{os.path.basename(old_file_path)}")
@@ -71,8 +57,8 @@ def save_chat_history(message_history_data: dict, backup_directory: str = BACKUP
             delete_old_backups(user_id, abs_path)
 
             taiwan_tz = pytz.timezone('Asia/Taipei')
-            timestamp = datetime.datetime.now(taiwan_tz).strftime("%Y%m%d_%H%M%S")
-            backup_file = os.path.join(backup_directory, f"chat_backup_{user_id}_{timestamp}.json")
+            timestamp = datetime.datetime.now(taiwan_tz).strftime("%Y%m%d_%H%M%S_%f")
+            backup_file = os.path.join(abs_path, f"chat_backup_{user_id}_{timestamp}.json")
             
             with open(backup_file, 'w', encoding = 'utf-8') as f:
                 json.dump(history, f, ensure_ascii = False, indent = 4)
@@ -102,10 +88,10 @@ def load_chat_history(backup_directory: str = BACKUP_DIRECTORY) -> dict:
             filepath = os.path.join(abs_path, filename)
             try:
                 parts = filename.split('_')
-                if len(parts) >= 5:
+                if len(parts) >= 6:
                     user_id = int(parts[2])
-                    timestamp_str = f"{parts[3]}_{parts[4].split('.')[0]}" #YYYYMMDD_HHMMSS.json
-                    timestamp = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+                    timestamp_str = f"{parts[3]}_{parts[4]}_{parts[5].split('.')[0]}" #YYYYMMDD_HHMMSS_milisec.json
+                    timestamp = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S_%f")
 
                     if user_id not in lastest_user_backups or timestamp > lastest_user_backups[user_id][0]:
                         lastest_user_backups[user_id] = (timestamp, filepath)
@@ -125,5 +111,40 @@ def load_chat_history(backup_directory: str = BACKUP_DIRECTORY) -> dict:
             print(f"  - 載入備份檔'{filepath}'時發生錯誤: {e}")
             continue
 
-    print(f"聊天紀錄載入完成。共載入 {len(loaded_history)} 位使用者的紀錄。\n\n")
     return loaded_history
+
+
+def get_latest_timestamp(user_id: int, backup_directory: str) -> datetime.datetime or None:
+
+    print(f"正在獲取用戶 {user_id} 的最新備份時間")
+    abs_path = os.path.abspath(backup_directory)
+    
+    if not os.path.exists(abs_path):
+        print(f"目錄 {abs_path} 不存在")
+        return None
+
+    latest_timestamp = None
+
+    for filename in os.listdir(abs_path):
+        if filename.startswith(f"chat_backup_{user_id}_") and filename.endswith(".json"):
+            try:
+                parts = filename.split('_')
+                if len(parts) >= 6:
+                    user_id = int(parts[2])
+                    timestamp_str = f"{parts[3]}_{parts[4]}_{parts[5].split('.')[0]}" #YYYYMMDD_HHMMSS_milisec.json
+                    current_timestamp = datetime.datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S_%f")
+                    if latest_timestamp is None or current_timestamp > latest_timestamp:
+                        latest_timestamp = current_timestamp
+
+                else: print(f"跳過用戶 {user_id} 不符合命名規則的檔案 '{filename}'")
+
+            except ValueError:
+                print(f"解析用戶 {user_id} 的備份檔 '{filename}' 中的時間格式錯誤")
+
+            except Exception as e:
+                print(f"解析用戶 {user_id} 的備份檔 '{filename}' 時發生錯誤: {e}")
+
+            return latest_timestamp
+
+
+    
