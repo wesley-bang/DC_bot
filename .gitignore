@@ -6,3 +6,7 @@ __pycache__/
 .vscode/ # 如果你不想分享VScode的配置
 .idea/
 chat_backups/
+joy_memory/
+chat_backups/.ipynb_checkpoints/
+.ipynb_checkpoints/
+
