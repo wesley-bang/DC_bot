@@ -7,6 +7,7 @@ __pycache__/
 .idea/
 chat_backups/
 joy_memory/
-chat_backups/.ipynb_checkpoints/
+cogs/.ipynb_checkpoints/
+cogs/cards/
 .ipynb_checkpoints/
 
