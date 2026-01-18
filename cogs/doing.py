@@ -23,7 +23,7 @@ class Doing(commands.Cog):
         random_activity = random.choice(self.activities)
         time_now = datetime.datetime.now(self.taiwan_tz)
         await self.bot.change_presence(activity = discord.Activity(type = ActivityType.playing, name = f"{random_activity}"), status = discord.Status.online)
-        print(f"機器人正在玩{random_activity}，時間: {time_now.strftime('%H:%M:%S')}\n")
+        print(f"喬伊正在玩{random_activity}，時間: {time_now.strftime('%H:%M:%S')}\n")
 
     @doing_task.before_loop
     async def before_doing_task(self):
@@ -31,7 +31,7 @@ class Doing(commands.Cog):
         time_now = datetime.datetime.now(self.taiwan_tz)
         random_activity = random.choice(self.activities)
         await self.bot.change_presence(activity = discord.Activity(type = ActivityType.playing, name = f"{random_activity}"), status = discord.Status.online)
-        print(f"機器人正在玩{random_activity}，時間: {time_now.strftime('%H:%M:%S')}\n")
+        print(f"喬伊正在玩{random_activity}，時間: {time_now.strftime('%H:%M:%S')}\n")
 
     @commands.Cog.listener() 
     async def on_ready(self):

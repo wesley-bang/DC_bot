@@ -42,7 +42,7 @@ async def on_ready():
         
         initial_activity = random.choice(doing_cog.activities)
         await bot.change_presence(activity = discord.Activity(type = ActivityType.playing, name = f"{initial_activity}"), status = discord.Status.online)
-        print(f"機器人初始狀態設定為：正在玩{initial_activity}，時間: {time_now.strftime('%H:%M:%S')}\n\n")
+        print(f"喬伊初始狀態設定為：正在玩{initial_activity}，時間: {time_now.strftime('%H:%M:%S')}\n")
         
         if not doing_cog.doing_task.is_running():
             doing_cog.doing_task.start()
@@ -51,23 +51,22 @@ async def on_ready():
     else:
         print("未找到 Doing Cog，無法設定初始狀態或啟動任務。")
 
-    
     talking_cog = bot.get_cog("Talking")
     if talking_cog:
-        print("正在為 Talking Cog 載入聊天記錄並啟動定時備份任務...")
-        talking_cog.message_history = chat_backup_manager.load_chat_history()
-        print("已載入所有使用者的對話歷史。\n")
-
-        # 啟動定時備份任務
-        if not talking_cog._backup_task or talking_cog._backup_task.done():
-            talking_cog._backup_task = bot.loop.create_task(talking_cog.start_backup_task())
-            print("定時備份啟動")
-        else:
-            print("聊天記錄定時備份任務已在運行中。")
+        print("Talking Cog 已載入，統一備份系統和記憶管理系統已自動啟動。")
+        
+        # 顯示當前備份統計信息
+        try:
+            stats = talking_cog.backup_manager.get_backup_stats()
+            print(f"當前備份統計：")
+            print(f"  - 聊天備份: {stats['chat_backup_count']} 個")
+            print(f"  - 記憶備份: {stats['memory_backup_count']} 個")
+            print(f"  - 總用戶數: {stats['total_users']} 人")
+            print()
+        except Exception as e:
+            print(f"獲取備份統計失敗: {e}")
     else:
-        print("未找到 Talking Cog，無法載入歷史記錄或啟動備份任務。")
-
-    
+        print("未找到 Talking Cog，記憶管理和備份系統未啟動。")    
 
 
 # 載入 Cog 的指令 (可選，但建議有，方便開發時測試)
@@ -99,5 +98,4 @@ async def reload(ctx, extension):
 
 
 # 運行機器人
-# 為了安全，TOKEN 建議放在環境變數或 config.py 中，不要直接寫在這裡
 bot.run(BOT_TOKEN)
